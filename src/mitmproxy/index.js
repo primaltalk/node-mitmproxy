@@ -7,7 +7,6 @@ const createConnectHandler = require('./createConnectHandler');
 const createFakeServerCenter = require('./createFakeServerCenter');
 const createUpgradeHandler = require('./createUpgradeHandler');
 
-
 module.exports = {
     createProxy({
         port = config.defaultPort,
@@ -20,7 +19,6 @@ module.exports = {
         middlewares = [],
         externalProxy
     }) {
-
         // Don't reject unauthorized
         process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'
 
@@ -59,7 +57,7 @@ module.exports = {
 
         var server = new http.Server();
         server.listen(port, () => {
-            console.log(colors.green(`node-mitmproxy启动端口: ${port}`));
+            console.log(colors.green(`node-mitmproxy Boot port: ${port}`));
             server.on('error', (e) => {
                 console.error(colors.red(e));
             });
@@ -81,4 +79,4 @@ module.exports = {
     createCA(caBasePath = config.getDefaultCABasePath()) {
         return tlsUtils.initCA(caBasePath);
     }
-}
+};
