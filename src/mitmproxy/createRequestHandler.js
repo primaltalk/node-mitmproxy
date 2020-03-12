@@ -2,10 +2,12 @@ const http = require('http');
 const https = require('https');
 const url = require('url');
 const commonUtil = require('../common/util');
+const connections = require('../common/connections');
 const upgradeHeader = /(^|,)\s*upgrade\s*($|,)/i;
 
 // create requestHandler function
 module.exports = function createRequestHandler(requestInterceptor, responseInterceptor, middlewares, externalProxy) {
+
 
     // return
     return function requestHandler(req, res, ssl) {
@@ -29,7 +31,7 @@ module.exports = function createRequestHandler(requestInterceptor, responseInter
                 }
                 try {
                     if (typeof requestInterceptor === 'function') {
-                        requestInterceptor.call(null, rOptions, req, res, ssl, next);
+                        requestInterceptor.call(null, rOptions, req, res, ssl, next, connections);
                     } else {
                         resolve();
                     }

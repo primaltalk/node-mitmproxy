@@ -1,12 +1,14 @@
 const net = require('net');
 const url = require('url');
 const colors = require('colors');
+const connections = require('../common/connections');
 
 const localIP = '127.0.0.1';
+
 // create connectHandler function
 module.exports = function createConnectHandler(sslConnectInterceptor, fakeServerCenter) {
 
-    // return
+  // return
     return function connectHandler (req, cltSocket, head) {
 
         var srvUrl = url.parse(`https://${req.url}`);
@@ -20,15 +22,14 @@ module.exports = function createConnectHandler(sslConnectInterceptor, fakeServer
         } else {
             connect(req, cltSocket, head, srvUrl.hostname, srvUrl.port);
         }
-    }
-
-}
+    };
+};
 
 function connect (req, cltSocket, head, hostname, port) {
     // tunneling https
     var proxySocket = net.connect(port, hostname, () => {
         cltSocket.write('HTTP/1.1 200 Connection Established\r\n' +
-        'Proxy-agent: node-mitmproxy\r\n' +
+        'Proxy-agent: scraperapi\r\n' +
         '\r\n');
         proxySocket.write(head);
         proxySocket.pipe(cltSocket);
@@ -37,5 +38,13 @@ function connect (req, cltSocket, head, hostname, port) {
     proxySocket.on('error', (e) => {
         console.log(colors.red(e));
     });
+    proxySocket.on('ready', () => {
+        proxySocket.connectKey = `${proxySocket.localPort}:${proxySocket.remotePort}`;
+        connections[proxySocket.connectKey] = req;
+    });
+    proxySocket.on('end', () => {
+        delete connections[proxySocket.connectKey];
+    });
+
     return proxySocket;
 }
