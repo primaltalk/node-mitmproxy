@@ -31,7 +31,8 @@ module.exports = function createRequestHandler(requestInterceptor, responseInter
                 }
                 try {
                     if (typeof requestInterceptor === 'function') {
-                        requestInterceptor.call(null, rOptions, req, res, ssl, next, connections);
+                      const connectKey = `${req.socket.remotePort}:${req.socket.localPort}`;
+                      requestInterceptor.call(null, rOptions, req, res, ssl, next, connections[connectKey]);
                     } else {
                         resolve();
                     }
